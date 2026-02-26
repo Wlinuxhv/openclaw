@@ -3,6 +3,8 @@ name: Android Build
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -28,15 +30,16 @@ jobs:
         cd apps/android
         chmod +x gradlew
         ./gradlew assembleDebug --no-daemon
+        ls -la app/build/outputs/apk/debug/
         
     - name: Prepare output directory
       run: |
         mkdir -p output
-        cp apps/android/app/build/outputs/apk/debug/app-debug.apk output/openclaw.apk
+        cp apps/android/app/build/outputs/apk/debug/*-debug.apk output/openclaw-debug.apk
         ls -la output/
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: openclaw-apk
-        path: output/openclaw.apk
+        name: openclaw-debug
+        path: output/openclaw-debug.apk
