@@ -3,9 +3,7 @@ name: Android Build
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:  # 允许手动触发构建
+  workflow_dispatch:
 
 jobs:
   build:
@@ -25,27 +23,20 @@ jobs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
       
-    - name: Make gradlew executable
-      run: chmod +x ./apps/android/gradlew
-      
     - name: Build APK
       run: |
-        cd ./apps/android
+        cd apps/android
+        chmod +x gradlew
         ./gradlew assembleDebug --no-daemon
+        
+    - name: Prepare output directory
+      run: |
+        mkdir -p output
+        cp apps/android/app/build/outputs/apk/debug/app-debug.apk output/openclaw.apk
+        ls -la output/
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: app-debug
-        path: ./apps/android/app/build/outputs/apk/debug/app-debug.apk
-    # 在步骤中添加
-    - name: Build Release APK
-      run: |
-        cd ./apps/android
-        ./gradlew assembleRelease --no-daemon
-
-    - name: Upload Release APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release
-        path: ./apps/android/app/build/outputs/apk/release/app-release.apk
+        name: openclaw-apk
+        path: output/openclaw.apk
