@@ -87,7 +87,7 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
     val prompt = pendingTrust!!
     AlertDialog(
       onDismissRequest = { viewModel.declineGatewayTrustPrompt() },
-      title = { Text("Trust this gateway?") },
+      title = { Text("信任此网关？") },
       text = {
         Text(
           "First-time TLS connection.\n\nVerify this SHA-256 fingerprint before trusting:\n${prompt.fingerprintSha256}",
@@ -96,12 +96,12 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
       },
       confirmButton = {
         TextButton(onClick = { viewModel.acceptGatewayTrustPrompt() }) {
-          Text("Trust and continue")
+          Text("信任并继续")
         }
       },
       dismissButton = {
         TextButton(onClick = { viewModel.declineGatewayTrustPrompt() }) {
-          Text("Cancel")
+          Text("取消")
         }
       },
     )
@@ -128,8 +128,8 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
     verticalArrangement = Arrangement.spacedBy(14.dp),
   ) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-      Text("Connection Control", style = mobileCaption1.copy(fontWeight = FontWeight.Bold), color = mobileAccent)
-      Text("Gateway Connection", style = mobileTitle1, color = mobileText)
+      Text("连接控制", style = mobileCaption1.copy(fontWeight = FontWeight.Bold), color = mobileAccent)
+      Text("网关连接", style = mobileTitle1, color = mobileText)
       Text(
         "One primary action. Open advanced controls only when needed.",
         style = mobileCallout,
@@ -144,7 +144,7 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
       border = BorderStroke(1.dp, mobileBorder),
     ) {
       Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text("Active endpoint", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
+        Text("活动端点", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
         Text(activeEndpoint, style = mobileBody.copy(fontFamily = FontFamily.Monospace), color = mobileText)
       }
     }
@@ -156,7 +156,7 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
       border = BorderStroke(1.dp, mobileBorder),
     ) {
       Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text("Gateway state", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
+        Text("网关状态", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
         Text(statusText, style = mobileBody, color = mobileText)
       }
     }
@@ -230,8 +230,8 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
         horizontalArrangement = Arrangement.SpaceBetween,
       ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-          Text("Advanced controls", style = mobileHeadline, color = mobileText)
-          Text("Setup code, endpoint, TLS, token, password, onboarding.", style = mobileCaption1, color = mobileTextSecondary)
+          Text("高级控制", style = mobileHeadline, color = mobileText)
+          Text("设置码、端点、TLS、令牌、密码、引导。", style = mobileCaption1, color = mobileTextSecondary)
         }
         Icon(
           imageVector = if (advancedOpen) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
@@ -252,7 +252,7 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
           modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 14.dp),
           verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-          Text("Connection method", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
+          Text("连接方式", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
           Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             MethodChip(
               label = "Setup Code",
@@ -266,7 +266,7 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
             )
           }
 
-          Text("Run these on the gateway host:", style = mobileCallout, color = mobileTextSecondary)
+          Text("在网关主机上运行：", style = mobileCallout, color = mobileTextSecondary)
           CommandBlock("openclaw qr --setup-code-only")
           CommandBlock("openclaw qr --json")
 
@@ -278,7 +278,7 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
                 setupCode = it
                 validationText = null
               },
-              placeholder = { Text("Paste setup code", style = mobileBody, color = mobileTextTertiary) },
+              placeholder = { Text("粘贴设置码", style = mobileBody, color = mobileTextTertiary) },
               modifier = Modifier.fillMaxWidth(),
               minLines = 3,
               maxLines = 5,
@@ -312,7 +312,7 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
               )
             }
 
-            Text("Host", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
+            Text("主机", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
             OutlinedTextField(
               value = manualHostInput,
               onValueChange = {
@@ -328,7 +328,7 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
               colors = outlinedColors(),
             )
 
-            Text("Port", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
+            Text("端口", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
             OutlinedTextField(
               value = manualPortInput,
               onValueChange = {
@@ -350,8 +350,8 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
               horizontalArrangement = Arrangement.SpaceBetween,
             ) {
               Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text("Use TLS", style = mobileHeadline, color = mobileText)
-                Text("Switch to secure websocket (`wss`).", style = mobileCallout, color = mobileTextSecondary)
+                Text("使用 TLS", style = mobileHeadline, color = mobileText)
+                Text("切换到安全websocket (wss)。", style = mobileCallout, color = mobileTextSecondary)
               }
               Switch(
                 checked = manualTlsInput,
@@ -369,7 +369,7 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
               )
             }
 
-            Text("Token (optional)", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
+            Text("令牌 (可选)", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
             OutlinedTextField(
               value = gatewayToken,
               onValueChange = { viewModel.setGatewayToken(it) },
@@ -382,7 +382,7 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
               colors = outlinedColors(),
             )
 
-            Text("Password (optional)", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
+            Text("密码 (可选)", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
             OutlinedTextField(
               value = passwordInput,
               onValueChange = { passwordInput = it },
@@ -403,7 +403,7 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
           HorizontalDivider(color = mobileBorder)
 
           TextButton(onClick = { viewModel.setOnboardingCompleted(false) }) {
-            Text("Run onboarding again", style = mobileCallout.copy(fontWeight = FontWeight.SemiBold), color = mobileAccent)
+            Text("重新运行引导", style = mobileCallout.copy(fontWeight = FontWeight.SemiBold), color = mobileAccent)
           }
         }
       }
@@ -474,7 +474,7 @@ private fun CommandBlock(command: String) {
 private fun EndpointPreview(endpoint: String) {
   Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
     HorizontalDivider(color = mobileBorder)
-    Text("Resolved endpoint", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
+    Text("解析后的端点", style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold), color = mobileTextSecondary)
     Text(endpoint, style = mobileCallout.copy(fontFamily = FontFamily.Monospace), color = mobileText)
     HorizontalDivider(color = mobileBorder)
   }

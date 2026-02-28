@@ -49,11 +49,11 @@ private enum class HomeTab(
   val label: String,
   val icon: ImageVector,
 ) {
-  Connect(label = "Connect", icon = Icons.Default.CheckCircle),
-  Chat(label = "Chat", icon = Icons.Default.ChatBubble),
-  Voice(label = "Voice", icon = Icons.Default.RecordVoiceOver),
-  Screen(label = "Screen", icon = Icons.AutoMirrored.Filled.ScreenShare),
-  Settings(label = "Settings", icon = Icons.Default.Settings),
+  Connect(label = "连接", icon = Icons.Default.CheckCircle),
+  Chat(label = "聊天", icon = Icons.Default.ChatBubble),
+  Voice(label = "语音", icon = Icons.Default.RecordVoiceOver),
+  Screen(label = "屏幕", icon = Icons.AutoMirrored.Filled.ScreenShare),
+  Settings(label = "设置", icon = Icons.Default.Settings),
 }
 
 private enum class StatusVisual {
@@ -137,9 +137,9 @@ private fun ScreenTabScreen(viewModel: MainViewModel) {
   val showRestoreCta = isConnected && isNodeConnected && (canvasUrl.isNullOrBlank() || (isA2uiUrl && !canvasA2uiHydrated))
   val restoreCtaText =
     when {
-      canvasRehydratePending -> "Restore requested. Waiting for agent…"
+      canvasRehydratePending -> "恢复请求已发出。等待代理…"
       !canvasRehydrateErrorText.isNullOrBlank() -> canvasRehydrateErrorText!!
-      else -> "Canvas reset. Tap to restore dashboard."
+      else -> "画布已重置。点击恢复仪表板。"
     }
 
   Box(modifier = Modifier.fillMaxSize()) {
@@ -247,7 +247,7 @@ private fun TopStatusBar(
             Box(modifier = Modifier.padding(4.dp))
           }
           Text(
-            text = statusText.trim().ifEmpty { "Offline" },
+            text = statusText.trim().ifEmpty { "离线" },
             style = mobileCaption1,
             color = chipText,
             maxLines = 1,

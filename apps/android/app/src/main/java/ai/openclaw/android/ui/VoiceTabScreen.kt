@@ -145,11 +145,11 @@ fun VoiceTabScreen(viewModel: MainViewModel) {
     ) {
       Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
-          "VOICE",
+          "语音",
           style = mobileCaption1.copy(fontWeight = FontWeight.Bold, letterSpacing = 1.sp),
           color = mobileAccent,
         )
-        Text("Voice mode", style = mobileTitle2, color = mobileText)
+        Text("语音模式", style = mobileTitle2, color = mobileText)
       }
       Surface(
         shape = RoundedCornerShape(999.dp),
@@ -157,7 +157,7 @@ fun VoiceTabScreen(viewModel: MainViewModel) {
         border = BorderStroke(1.dp, if (isConnected) mobileAccent.copy(alpha = 0.25f) else mobileBorderStrong),
       ) {
         Text(
-          if (isConnected) "Connected" else "Offline",
+          if (isConnected) "已连接" else "离线",
           modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
           style = mobileCaption1,
           color = if (isConnected) mobileAccent else mobileTextSecondary,
@@ -178,7 +178,7 @@ fun VoiceTabScreen(viewModel: MainViewModel) {
             verticalArrangement = Arrangement.spacedBy(8.dp),
           ) {
             Text(
-              "Tap the mic and speak. Each pause sends a turn automatically.",
+              "点击麦克风并说话。每次停顿会自动发送一轮。",
               style = mobileCallout,
               color = mobileTextSecondary,
             )
@@ -217,9 +217,9 @@ fun VoiceTabScreen(viewModel: MainViewModel) {
           val stateText =
             when {
               queueCount > 0 -> "$queueCount queued"
-              micIsSending -> "Sending"
-              micEnabled -> "Listening"
-              else -> "Mic off"
+              micIsSending -> "发送中"
+              micEnabled -> "正在监听"
+              else -> "麦克风关闭"
             }
           Text(
             "$gatewayStatus · $stateText",
@@ -277,7 +277,7 @@ fun VoiceTabScreen(viewModel: MainViewModel) {
         }
 
         Text(
-          if (micEnabled) "Tap to stop" else "Tap to speak",
+          if (micEnabled) "点击停止" else "点击说话",
           style = mobileCallout,
           color = mobileTextSecondary,
         )
@@ -291,9 +291,9 @@ fun VoiceTabScreen(viewModel: MainViewModel) {
             }
           Text(
             if (showRationale) {
-              "Microphone permission is required for voice mode."
+              "语音模式需要麦克风权限。"
             } else {
-              "Microphone blocked. Open app settings to enable it."
+              "麦克风被阻止。打开应用设置以启用。"
             },
             style = mobileCaption1,
             color = mobileWarning,
@@ -304,7 +304,7 @@ fun VoiceTabScreen(viewModel: MainViewModel) {
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = mobileSurfaceStrong, contentColor = mobileText),
           ) {
-            Text("Open settings", style = mobileCallout.copy(fontWeight = FontWeight.SemiBold))
+            Text("打开设置", style = mobileCallout.copy(fontWeight = FontWeight.SemiBold))
           }
         }
 
@@ -336,12 +336,12 @@ private fun VoiceTurnBubble(entry: VoiceConversationEntry) {
         verticalArrangement = Arrangement.spacedBy(6.dp),
       ) {
         Text(
-          if (isUser) "You" else "OpenClaw",
+          if (isUser) "您" else "OpenClaw",
           style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold),
           color = mobileTextSecondary,
         )
         Text(
-          if (entry.isStreaming && entry.text.isBlank()) "Listening response…" else entry.text,
+          if (entry.isStreaming && entry.text.isBlank()) "正在听取回复…" else entry.text,
           style = mobileCallout,
           color = mobileText,
         )
@@ -365,7 +365,7 @@ private fun VoiceThinkingBubble() {
         verticalAlignment = Alignment.CenterVertically,
       ) {
         ThinkingDots(color = mobileTextSecondary)
-        Text("OpenClaw is thinking…", style = mobileCallout, color = mobileTextSecondary)
+        Text("OpenClaw 正在思考…", style = mobileCallout, color = mobileTextSecondary)
       }
     }
   }

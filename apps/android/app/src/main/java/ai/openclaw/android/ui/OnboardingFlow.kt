@@ -81,13 +81,13 @@ import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 
 private enum class OnboardingStep(val index: Int, val label: String) {
-  Welcome(1, "Welcome"),
-  Gateway(2, "Gateway"),
-  Permissions(3, "Permissions"),
-  FinalCheck(4, "Connect"),
+  GuestWelcome(1, "GuestWelcome"),
+  GuestGateway(2, "GuestGateway"),
+  GuestPermissions(3, "GuestPermissions"),
+  GuestFinalCheck(4, "连接"),
 }
 
-private enum class GatewayInputMode {
+private enum class GuestGatewayInputMode {
   SetupCode,
   Manual,
 }
@@ -189,14 +189,14 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
   val isConnected by viewModel.isConnected.collectAsState()
   val serverName by viewModel.serverName.collectAsState()
   val remoteAddress by viewModel.remoteAddress.collectAsState()
-  val persistedGatewayToken by viewModel.gatewayToken.collectAsState()
-  val pendingTrust by viewModel.pendingGatewayTrust.collectAsState()
+  val persistedGuestGatewayToken by viewModel.gatewayToken.collectAsState()
+  val pendingTrust by viewModel.pendingGuestGatewayTrust.collectAsState()
 
-  var step by rememberSaveable { mutableStateOf(OnboardingStep.Welcome) }
+  var step by rememberSaveable { mutableStateOf(OnboardingStep.GuestWelcome) }
   var setupCode by rememberSaveable { mutableStateOf("") }
   var gatewayUrl by rememberSaveable { mutableStateOf("") }
   var gatewayPassword by rememberSaveable { mutableStateOf("") }
-  var gatewayInputMode by rememberSaveable { mutableStateOf(GatewayInputMode.SetupCode) }
+  var gatewayInputMode by rememberSaveable { mutableStateOf(GuestGatewayInputMode.SetupCode) }
   var gatewayAdvancedOpen by rememberSaveable { mutableStateOf(false) }
   var manualHost by rememberSaveable { mutableStateOf("10.0.2.2") }
   var manualPort by rememberSaveable { mutableStateOf("18789") }
@@ -215,7 +215,7 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
       context.packageManager?.hasSystemFeature(PackageManager.FEATURE_TELEPHONY) == true
     }
 
-  val selectedPermissions =
+  val selectedGuestPermissions =
     remember(
       context,
       enableDiscovery,
@@ -239,17 +239,17 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
   val enabledPermissionSummary =
     remember(enableDiscovery, enableNotifications, enableMicrophone, enableCamera, enableSms, smsAvailable) {
       val enabled = mutableListOf<String>()
-      if (enableDiscovery) enabled += "Gateway discovery"
-      if (Build.VERSION.SDK_INT >= 33 && enableNotifications) enabled += "Notifications"
-      if (enableMicrophone) enabled += "Microphone"
-      if (enableCamera) enabled += "Camera"
-      if (smsAvailable && enableSms) enabled += "SMS"
-      if (enabled.isEmpty()) "None selected" else enabled.joinToString(", ")
+      if (enableDiscovery) enabled += "GuestGateway discovery"
+      if (Build.VERSION.SDK_INT >= 33 && enableNotifications) enabled += "通知"
+      if (enableMicrophone) enabled += "麦克风"
+      if (enableCamera) enabled += "摄像头"
+      if (smsAvailable && enableSms) enabled += "短信"
+      if (enabled.isEmpty()) "未选择" else enabled.joinToString(", ")
     }
 
   val permissionLauncher =
-    rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-      step = OnboardingStep.FinalCheck
+    rememberLauncherForActivityResult(ActivityResultContracts.RequestMultipleGuestPermissions()) {
+      step = OnboardingStep.GuestFinalCheck
     }
 
   val qrScanLauncher =
@@ -260,11 +260,11 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
       }
       val scannedSetupCode = resolveScannedSetupCode(contents)
       if (scannedSetupCode == null) {
-        gatewayError = "QR code did not contain a valid setup code."
+        gatewayError = "QR码不包含有效的设置码。"
         return@rememberLauncherForActivityResult
       }
       setupCode = scannedSetupCode
-      gatewayInputMode = GatewayInputMode.SetupCode
+      gatewayInputMode = GuestGatewayInputMode.SetupCode
       gatewayError = null
       attemptedConnect = false
     }
@@ -272,21 +272,21 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
   if (pendingTrust != null) {
     val prompt = pendingTrust!!
     AlertDialog(
-      onDismissRequest = { viewModel.declineGatewayTrustPrompt() },
-      title = { Text("Trust this gateway?") },
+      onDismissRequest = { viewModel.declineGuestGatewayTrustPrompt() },
+      title = { Text("信任此网关？") },
       text = {
         Text(
           "First-time TLS connection.\n\nVerify this SHA-256 fingerprint before trusting:\n${prompt.fingerprintSha256}",
         )
       },
       confirmButton = {
-        TextButton(onClick = { viewModel.acceptGatewayTrustPrompt() }) {
-          Text("Trust and continue")
+        TextButton(onClick = { viewModel.acceptGuestGatewayTrustPrompt() }) {
+          Text("信任并继续")
         }
       },
       dismissButton = {
-        TextButton(onClick = { viewModel.declineGatewayTrustPrompt() }) {
-          Text("Cancel")
+        TextButton(onClick = { viewModel.declineGuestGatewayTrustPrompt() }) {
+          Text("取消")
         }
       },
     )
@@ -317,7 +317,7 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
           verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
           Text(
-            "FIRST RUN",
+            "首次运行",
             style = onboardingCaption1Style.copy(fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp),
             color = onboardingAccent,
           )
@@ -335,16 +335,16 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
         StepRailWrap(current = step)
 
         when (step) {
-          OnboardingStep.Welcome -> WelcomeStep()
-          OnboardingStep.Gateway ->
-            GatewayStep(
+          OnboardingStep.GuestWelcome -> GuestWelcomeStep()
+          OnboardingStep.GuestGateway ->
+            GuestGatewayStep(
               inputMode = gatewayInputMode,
               advancedOpen = gatewayAdvancedOpen,
               setupCode = setupCode,
               manualHost = manualHost,
               manualPort = manualPort,
               manualTls = manualTls,
-              gatewayToken = persistedGatewayToken,
+              gatewayToken = persistedGuestGatewayToken,
               gatewayPassword = gatewayPassword,
               gatewayError = gatewayError,
               onScanQrClick = {
@@ -376,11 +376,11 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
                 gatewayError = null
               },
               onManualTlsChange = { manualTls = it },
-              onTokenChange = viewModel::setGatewayToken,
+              onTokenChange = viewModel::setGuestGatewayToken,
               onPasswordChange = { gatewayPassword = it },
             )
-          OnboardingStep.Permissions ->
-            PermissionsStep(
+          OnboardingStep.GuestPermissions ->
+            GuestPermissionsStep(
               enableDiscovery = enableDiscovery,
               enableNotifications = enableNotifications,
               enableMicrophone = enableMicrophone,
@@ -394,16 +394,16 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
               onCameraChange = { enableCamera = it },
               onSmsChange = { enableSms = it },
             )
-          OnboardingStep.FinalCheck ->
+          OnboardingStep.GuestFinalCheck ->
             FinalStep(
-              parsedGateway = parseGatewayEndpoint(gatewayUrl),
+              parsedGuestGateway = parseGuestGatewayEndpoint(gatewayUrl),
               statusText = statusText,
               isConnected = isConnected,
               serverName = serverName,
               remoteAddress = remoteAddress,
               attemptedConnect = attemptedConnect,
-              enabledPermissions = enabledPermissionSummary,
-              methodLabel = if (gatewayInputMode == GatewayInputMode.SetupCode) "QR / Setup Code" else "Manual",
+              enabledGuestPermissions = enabledPermissionSummary,
+              methodLabel = if (gatewayInputMode == GuestGatewayInputMode.SetupCode) "QR / Setup Code" else "手动",
             )
         }
       }
@@ -415,7 +415,7 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
       ) {
-        val backEnabled = step != OnboardingStep.Welcome
+        val backEnabled = step != OnboardingStep.GuestWelcome
         Surface(
           modifier = Modifier.size(52.dp),
           shape = RoundedCornerShape(14.dp),
@@ -426,26 +426,26 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
             onClick = {
               step =
                 when (step) {
-                  OnboardingStep.Welcome -> OnboardingStep.Welcome
-                  OnboardingStep.Gateway -> OnboardingStep.Welcome
-                  OnboardingStep.Permissions -> OnboardingStep.Gateway
-                  OnboardingStep.FinalCheck -> OnboardingStep.Permissions
+                  OnboardingStep.GuestWelcome -> OnboardingStep.GuestWelcome
+                  OnboardingStep.GuestGateway -> OnboardingStep.GuestWelcome
+                  OnboardingStep.GuestPermissions -> OnboardingStep.GuestGateway
+                  OnboardingStep.GuestFinalCheck -> OnboardingStep.GuestPermissions
                 }
             },
             enabled = backEnabled,
           ) {
             Icon(
               Icons.AutoMirrored.Filled.ArrowBack,
-              contentDescription = "Back",
+              contentDescription = "返回",
               tint = if (backEnabled) onboardingTextSecondary else onboardingTextTertiary,
             )
           }
         }
 
         when (step) {
-          OnboardingStep.Welcome -> {
+          OnboardingStep.GuestWelcome -> {
             Button(
-              onClick = { step = OnboardingStep.Gateway },
+              onClick = { step = OnboardingStep.GuestGateway },
               modifier = Modifier.weight(1f).height(52.dp),
               shape = RoundedCornerShape(14.dp),
               colors =
@@ -456,36 +456,36 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
                   disabledContentColor = Color.White,
                 ),
             ) {
-              Text("Next", style = onboardingHeadlineStyle.copy(fontWeight = FontWeight.Bold))
+              Text("下一步", style = onboardingHeadlineStyle.copy(fontWeight = FontWeight.Bold))
             }
           }
-          OnboardingStep.Gateway -> {
+          OnboardingStep.GuestGateway -> {
             Button(
               onClick = {
-                if (gatewayInputMode == GatewayInputMode.SetupCode) {
-                  val parsedSetup = decodeGatewaySetupCode(setupCode)
+                if (gatewayInputMode == GuestGatewayInputMode.SetupCode) {
+                  val parsedSetup = decodeGuestGatewaySetupCode(setupCode)
                   if (parsedSetup == null) {
-                    gatewayError = "Scan QR code first, or use Advanced setup."
+                    gatewayError = "请先扫描QR码，或使用高级设置。"
                     return@Button
                   }
-                  val parsedGateway = parseGatewayEndpoint(parsedSetup.url)
-                  if (parsedGateway == null) {
-                    gatewayError = "Setup code has invalid gateway URL."
+                  val parsedGuestGateway = parseGuestGatewayEndpoint(parsedSetup.url)
+                  if (parsedGuestGateway == null) {
+                    gatewayError = "设置码的网关URL无效。"
                     return@Button
                   }
                   gatewayUrl = parsedSetup.url
-                  parsedSetup.token?.let { viewModel.setGatewayToken(it) }
+                  parsedSetup.token?.let { viewModel.setGuestGatewayToken(it) }
                   gatewayPassword = parsedSetup.password.orEmpty()
                 } else {
-                  val manualUrl = composeGatewayManualUrl(manualHost, manualPort, manualTls)
-                  val parsedGateway = manualUrl?.let(::parseGatewayEndpoint)
-                  if (parsedGateway == null) {
-                    gatewayError = "Manual endpoint is invalid."
+                  val manualUrl = composeGuestGatewayManualUrl(manualHost, manualPort, manualTls)
+                  val parsedGuestGateway = manualUrl?.let(::parseGuestGatewayEndpoint)
+                  if (parsedGuestGateway == null) {
+                    gatewayError = "手动端点无效。"
                     return@Button
                   }
-                  gatewayUrl = parsedGateway.displayUrl
+                  gatewayUrl = parsedGuestGateway.displayUrl
                 }
-                step = OnboardingStep.Permissions
+                step = OnboardingStep.GuestPermissions
               },
               modifier = Modifier.weight(1f).height(52.dp),
               shape = RoundedCornerShape(14.dp),
@@ -497,18 +497,18 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
                   disabledContentColor = Color.White,
                 ),
             ) {
-              Text("Next", style = onboardingHeadlineStyle.copy(fontWeight = FontWeight.Bold))
+              Text("下一步", style = onboardingHeadlineStyle.copy(fontWeight = FontWeight.Bold))
             }
           }
-          OnboardingStep.Permissions -> {
+          OnboardingStep.GuestPermissions -> {
             Button(
               onClick = {
                 viewModel.setCameraEnabled(enableCamera)
                 viewModel.setLocationMode(if (enableDiscovery) LocationMode.WhileUsing else LocationMode.Off)
-                if (selectedPermissions.isEmpty()) {
-                  step = OnboardingStep.FinalCheck
+                if (selectedGuestPermissions.isEmpty()) {
+                  step = OnboardingStep.GuestFinalCheck
                 } else {
-                  permissionLauncher.launch(selectedPermissions.toTypedArray())
+                  permissionLauncher.launch(selectedGuestPermissions.toTypedArray())
                 }
               },
               modifier = Modifier.weight(1f).height(52.dp),
@@ -521,10 +521,10 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
                   disabledContentColor = Color.White,
                 ),
             ) {
-              Text("Next", style = onboardingHeadlineStyle.copy(fontWeight = FontWeight.Bold))
+              Text("下一步", style = onboardingHeadlineStyle.copy(fontWeight = FontWeight.Bold))
             }
           }
-          OnboardingStep.FinalCheck -> {
+          OnboardingStep.GuestFinalCheck -> {
             if (isConnected) {
               Button(
                 onClick = { viewModel.setOnboardingCompleted(true) },
@@ -538,18 +538,18 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
                     disabledContentColor = Color.White,
                   ),
               ) {
-                Text("Finish", style = onboardingHeadlineStyle.copy(fontWeight = FontWeight.Bold))
+                Text("完成", style = onboardingHeadlineStyle.copy(fontWeight = FontWeight.Bold))
               }
             } else {
               Button(
                 onClick = {
-                  val parsed = parseGatewayEndpoint(gatewayUrl)
+                  val parsed = parseGuestGatewayEndpoint(gatewayUrl)
                   if (parsed == null) {
-                    step = OnboardingStep.Gateway
-                    gatewayError = "Invalid gateway URL."
+                    step = OnboardingStep.GuestGateway
+                    gatewayError = "网关URL无效。"
                     return@Button
                   }
-                  val token = persistedGatewayToken.trim()
+                  val token = persistedGuestGatewayToken.trim()
                   val password = gatewayPassword.trim()
                   attemptedConnect = true
                   viewModel.setManualEnabled(true)
@@ -557,9 +557,9 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
                   viewModel.setManualPort(parsed.port)
                   viewModel.setManualTls(parsed.tls)
                   if (token.isNotEmpty()) {
-                    viewModel.setGatewayToken(token)
+                    viewModel.setGuestGatewayToken(token)
                   }
-                  viewModel.setGatewayPassword(password)
+                  viewModel.setGuestGatewayPassword(password)
                   viewModel.connectManual()
                 },
                 modifier = Modifier.weight(1f).height(52.dp),
@@ -572,7 +572,7 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
                     disabledContentColor = Color.White,
                   ),
               ) {
-                Text("Connect", style = onboardingHeadlineStyle.copy(fontWeight = FontWeight.Bold))
+                Text("连接", style = onboardingHeadlineStyle.copy(fontWeight = FontWeight.Bold))
               }
             }
           }
@@ -631,18 +631,18 @@ private fun StepRail(current: OnboardingStep) {
 }
 
 @Composable
-private fun WelcomeStep() {
-  StepShell(title = "What You Get") {
-    Bullet("Control the gateway and operator chat from one mobile surface.")
-    Bullet("Connect with setup code and recover pairing with CLI commands.")
-    Bullet("Enable only the permissions and capabilities you want.")
-    Bullet("Finish with a real connection check before entering the app.")
+private fun GuestWelcomeStep() {
+  StepShell(title = "您将获得") {
+    Bullet("从一个移动界面控制网关和操作员聊天。")
+    Bullet("使用设置码连接，并可通过CLI命令恢复配对。")
+    Bullet("仅启用您需要的权限和功能。")
+    Bullet("在进入应用前进行真实的连接检查。")
   }
 }
 
 @Composable
-private fun GatewayStep(
-  inputMode: GatewayInputMode,
+private fun GuestGatewayStep(
+  inputMode: GuestGatewayInputMode,
   advancedOpen: Boolean,
   setupCode: String,
   manualHost: String,
@@ -653,7 +653,7 @@ private fun GatewayStep(
   gatewayError: String?,
   onScanQrClick: () -> Unit,
   onAdvancedOpenChange: (Boolean) -> Unit,
-  onInputModeChange: (GatewayInputMode) -> Unit,
+  onInputModeChange: (GuestGatewayInputMode) -> Unit,
   onSetupCodeChange: (String) -> Unit,
   onManualHostChange: (String) -> Unit,
   onManualPortChange: (String) -> Unit,
@@ -661,14 +661,14 @@ private fun GatewayStep(
   onTokenChange: (String) -> Unit,
   onPasswordChange: (String) -> Unit,
 ) {
-  val resolvedEndpoint = remember(setupCode) { decodeGatewaySetupCode(setupCode)?.url?.let { parseGatewayEndpoint(it)?.displayUrl } }
-  val manualResolvedEndpoint = remember(manualHost, manualPort, manualTls) { composeGatewayManualUrl(manualHost, manualPort, manualTls)?.let { parseGatewayEndpoint(it)?.displayUrl } }
+  val resolvedEndpoint = remember(setupCode) { decodeGuestGatewaySetupCode(setupCode)?.url?.let { parseGuestGatewayEndpoint(it)?.displayUrl } }
+  val manualResolvedEndpoint = remember(manualHost, manualPort, manualTls) { composeGuestGatewayManualUrl(manualHost, manualPort, manualTls)?.let { parseGuestGatewayEndpoint(it)?.displayUrl } }
 
-  StepShell(title = "Gateway Connection") {
-    GuideBlock(title = "Scan onboarding QR") {
-      Text("Run these on the gateway host:", style = onboardingCalloutStyle, color = onboardingTextSecondary)
+  StepShell(title = "GuestGateway Connection") {
+    GuideBlock(title = "扫描 onboarding QR 码") {
+      Text("在网关主机上运行：", style = onboardingCalloutStyle, color = onboardingTextSecondary)
       CommandBlock("openclaw qr")
-      Text("Then scan with this device.", style = onboardingCalloutStyle, color = onboardingTextSecondary)
+      Text("然后用此设备扫描。", style = onboardingCalloutStyle, color = onboardingTextSecondary)
     }
     Button(
       onClick = onScanQrClick,
@@ -680,10 +680,10 @@ private fun GatewayStep(
           contentColor = Color.White,
         ),
     ) {
-      Text("Scan QR code", style = onboardingHeadlineStyle.copy(fontWeight = FontWeight.Bold))
+      Text("扫描 QR 码", style = onboardingHeadlineStyle.copy(fontWeight = FontWeight.Bold))
     }
     if (!resolvedEndpoint.isNullOrBlank()) {
-      Text("QR captured. Review endpoint below.", style = onboardingCalloutStyle, color = onboardingSuccess)
+      Text("QR码已捕获。请查看下方端点。", style = onboardingCalloutStyle, color = onboardingSuccess)
       ResolvedEndpoint(endpoint = resolvedEndpoint)
     }
 
@@ -700,12 +700,12 @@ private fun GatewayStep(
         horizontalArrangement = Arrangement.SpaceBetween,
       ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-          Text("Advanced setup", style = onboardingHeadlineStyle, color = onboardingText)
-          Text("Paste setup code or enter host/port manually.", style = onboardingCaption1Style, color = onboardingTextSecondary)
+          Text("高级设置", style = onboardingHeadlineStyle, color = onboardingText)
+          Text("粘贴设置码或手动输入主机/端口。", style = onboardingCaption1Style, color = onboardingTextSecondary)
         }
         Icon(
           imageVector = if (advancedOpen) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-          contentDescription = if (advancedOpen) "Collapse advanced setup" else "Expand advanced setup",
+          contentDescription = if (advancedOpen) "收起高级设置" else "展开高级设置",
           tint = onboardingTextSecondary,
         )
       }
@@ -713,29 +713,29 @@ private fun GatewayStep(
 
     AnimatedVisibility(visible = advancedOpen) {
       Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        GuideBlock(title = "Manual setup commands") {
-          Text("Run these on the gateway host:", style = onboardingCalloutStyle, color = onboardingTextSecondary)
+        GuideBlock(title = "手动设置命令") {
+          Text("在网关主机上运行：", style = onboardingCalloutStyle, color = onboardingTextSecondary)
           CommandBlock("openclaw qr --setup-code-only")
           CommandBlock("openclaw qr --json")
           Text(
-            "`--json` prints `setupCode` and `gatewayUrl`.",
+            "--json 会输出 setupCode 和 gatewayUrl。",
             style = onboardingCalloutStyle,
             color = onboardingTextSecondary,
           )
           Text(
-            "Auto URL discovery is not wired yet. Android emulator uses `10.0.2.2`; real devices need LAN/Tailscale host.",
+            "自动URL发现尚未连接。Android模拟器使用 10.0.2.2；真机需要局域网/Tailscale主机。",
             style = onboardingCalloutStyle,
             color = onboardingTextSecondary,
           )
         }
-        GatewayModeToggle(inputMode = inputMode, onInputModeChange = onInputModeChange)
+        GuestGatewayModeToggle(inputMode = inputMode, onInputModeChange = onInputModeChange)
 
-        if (inputMode == GatewayInputMode.SetupCode) {
-          Text("SETUP CODE", style = onboardingCaption1Style.copy(letterSpacing = 0.9.sp), color = onboardingTextSecondary)
+        if (inputMode == GuestGatewayInputMode.SetupCode) {
+          Text("设置码", style = onboardingCaption1Style.copy(letterSpacing = 0.9.sp), color = onboardingTextSecondary)
           OutlinedTextField(
             value = setupCode,
             onValueChange = onSetupCodeChange,
-            placeholder = { Text("Paste code from `openclaw qr --setup-code-only`", color = onboardingTextTertiary, style = onboardingBodyStyle) },
+            placeholder = { Text("从 openclaw qr --setup-code-only 粘贴代码", color = onboardingTextTertiary, style = onboardingBodyStyle) },
             modifier = Modifier.fillMaxWidth(),
             minLines = 3,
             maxLines = 5,
@@ -758,19 +758,19 @@ private fun GatewayStep(
           }
         } else {
           Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            QuickFillChip(label = "Android Emulator", onClick = {
+            QuickFillChip(label = "Android 模拟器", onClick = {
               onManualHostChange("10.0.2.2")
               onManualPortChange("18789")
               onManualTlsChange(false)
             })
-            QuickFillChip(label = "Localhost", onClick = {
+            QuickFillChip(label = "本地主机", onClick = {
               onManualHostChange("127.0.0.1")
               onManualPortChange("18789")
               onManualTlsChange(false)
             })
           }
 
-          Text("HOST", style = onboardingCaption1Style.copy(letterSpacing = 0.9.sp), color = onboardingTextSecondary)
+          Text("主机", style = onboardingCaption1Style.copy(letterSpacing = 0.9.sp), color = onboardingTextSecondary)
           OutlinedTextField(
             value = manualHost,
             onValueChange = onManualHostChange,
@@ -792,7 +792,7 @@ private fun GatewayStep(
               ),
           )
 
-          Text("PORT", style = onboardingCaption1Style.copy(letterSpacing = 0.9.sp), color = onboardingTextSecondary)
+          Text("端口", style = onboardingCaption1Style.copy(letterSpacing = 0.9.sp), color = onboardingTextSecondary)
           OutlinedTextField(
             value = manualPort,
             onValueChange = onManualPortChange,
@@ -820,8 +820,8 @@ private fun GatewayStep(
             horizontalArrangement = Arrangement.SpaceBetween,
           ) {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-              Text("Use TLS", style = onboardingHeadlineStyle, color = onboardingText)
-              Text("Switch to secure websocket (`wss`).", style = onboardingCalloutStyle.copy(lineHeight = 18.sp), color = onboardingTextSecondary)
+              Text("使用 TLS", style = onboardingHeadlineStyle, color = onboardingText)
+              Text("切换到安全websocket (wss)。", style = onboardingCalloutStyle.copy(lineHeight = 18.sp), color = onboardingTextSecondary)
             }
             Switch(
               checked = manualTls,
@@ -836,7 +836,7 @@ private fun GatewayStep(
             )
           }
 
-          Text("TOKEN (OPTIONAL)", style = onboardingCaption1Style.copy(letterSpacing = 0.9.sp), color = onboardingTextSecondary)
+          Text("令牌 (可选)", style = onboardingCaption1Style.copy(letterSpacing = 0.9.sp), color = onboardingTextSecondary)
           OutlinedTextField(
             value = gatewayToken,
             onValueChange = onTokenChange,
@@ -858,7 +858,7 @@ private fun GatewayStep(
               ),
           )
 
-          Text("PASSWORD (OPTIONAL)", style = onboardingCaption1Style.copy(letterSpacing = 0.9.sp), color = onboardingTextSecondary)
+          Text("密码 (可选)", style = onboardingCaption1Style.copy(letterSpacing = 0.9.sp), color = onboardingTextSecondary)
           OutlinedTextField(
             value = gatewayPassword,
             onValueChange = onPasswordChange,
@@ -908,28 +908,28 @@ private fun GuideBlock(
 }
 
 @Composable
-private fun GatewayModeToggle(
-  inputMode: GatewayInputMode,
-  onInputModeChange: (GatewayInputMode) -> Unit,
+private fun GuestGatewayModeToggle(
+  inputMode: GuestGatewayInputMode,
+  onInputModeChange: (GuestGatewayInputMode) -> Unit,
 ) {
   Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-    GatewayModeChip(
-      label = "Setup Code",
-      active = inputMode == GatewayInputMode.SetupCode,
-      onClick = { onInputModeChange(GatewayInputMode.SetupCode) },
+    GuestGatewayModeChip(
+      label = "设置码",
+      active = inputMode == GuestGatewayInputMode.SetupCode,
+      onClick = { onInputModeChange(GuestGatewayInputMode.SetupCode) },
       modifier = Modifier.weight(1f),
     )
-    GatewayModeChip(
-      label = "Manual",
-      active = inputMode == GatewayInputMode.Manual,
-      onClick = { onInputModeChange(GatewayInputMode.Manual) },
+    GuestGatewayModeChip(
+      label = "手动",
+      active = inputMode == GuestGatewayInputMode.Manual,
+      onClick = { onInputModeChange(GuestGatewayInputMode.Manual) },
       modifier = Modifier.weight(1f),
     )
   }
 }
 
 @Composable
-private fun GatewayModeChip(
+private fun GuestGatewayModeChip(
   label: String,
   active: Boolean,
   onClick: () -> Unit,
@@ -1012,7 +1012,7 @@ private fun InlineDivider() {
 }
 
 @Composable
-private fun PermissionsStep(
+private fun GuestPermissionsStep(
   enableDiscovery: Boolean,
   enableNotifications: Boolean,
   enableMicrophone: Boolean,
@@ -1027,15 +1027,15 @@ private fun PermissionsStep(
   onSmsChange: (Boolean) -> Unit,
 ) {
   val discoveryPermission = if (Build.VERSION.SDK_INT >= 33) Manifest.permission.NEARBY_WIFI_DEVICES else Manifest.permission.ACCESS_FINE_LOCATION
-  StepShell(title = "Permissions") {
+  StepShell(title = "GuestPermissions") {
     Text(
-      "Enable only what you need now. You can change everything later in Settings.",
+      "仅启用您现在需要的权限。您可以在设置中稍后更改所有内容。",
       style = onboardingCalloutStyle,
       color = onboardingTextSecondary,
     )
     PermissionToggleRow(
-      title = "Gateway discovery",
-      subtitle = if (Build.VERSION.SDK_INT >= 33) "Nearby devices" else "Location (for NSD)",
+      title = "GuestGateway discovery",
+      subtitle = if (Build.VERSION.SDK_INT >= 33) "附近设备" else "位置 (用于NSD)",
       checked = enableDiscovery,
       granted = isPermissionGranted(context, discoveryPermission),
       onCheckedChange = onDiscoveryChange,
@@ -1043,8 +1043,8 @@ private fun PermissionsStep(
     InlineDivider()
     if (Build.VERSION.SDK_INT >= 33) {
       PermissionToggleRow(
-        title = "Notifications",
-        subtitle = "Foreground service + alerts",
+        title = "通知",
+        subtitle = "前台服务 + 提醒",
         checked = enableNotifications,
         granted = isPermissionGranted(context, Manifest.permission.POST_NOTIFICATIONS),
         onCheckedChange = onNotificationsChange,
@@ -1052,16 +1052,16 @@ private fun PermissionsStep(
       InlineDivider()
     }
     PermissionToggleRow(
-      title = "Microphone",
-      subtitle = "Voice tab transcription",
+      title = "麦克风",
+      subtitle = "语音标签转录",
       checked = enableMicrophone,
       granted = isPermissionGranted(context, Manifest.permission.RECORD_AUDIO),
       onCheckedChange = onMicrophoneChange,
     )
     InlineDivider()
     PermissionToggleRow(
-      title = "Camera",
-      subtitle = "camera.snap and camera.clip",
+      title = "摄像头",
+      subtitle = "camera.snap 和 camera.clip",
       checked = enableCamera,
       granted = isPermissionGranted(context, Manifest.permission.CAMERA),
       onCheckedChange = onCameraChange,
@@ -1069,14 +1069,14 @@ private fun PermissionsStep(
     if (smsAvailable) {
       InlineDivider()
       PermissionToggleRow(
-        title = "SMS",
-        subtitle = "Allow gateway-triggered SMS sending",
+        title = "短信",
+        subtitle = "允许网关触发的短信发送",
         checked = enableSms,
         granted = isPermissionGranted(context, Manifest.permission.SEND_SMS),
         onCheckedChange = onSmsChange,
       )
     }
-    Text("All settings can be changed later in Settings.", style = onboardingCalloutStyle, color = onboardingTextSecondary)
+    Text("所有设置都可以在设置中稍后更改。", style = onboardingCalloutStyle, color = onboardingTextSecondary)
   }
 }
 
@@ -1097,7 +1097,7 @@ private fun PermissionToggleRow(
       Text(title, style = onboardingHeadlineStyle, color = onboardingText)
       Text(subtitle, style = onboardingCalloutStyle.copy(lineHeight = 18.sp), color = onboardingTextSecondary)
       Text(
-        if (granted) "Granted" else "Not granted",
+        if (granted) "已授权" else "未授权",
         style = onboardingCaption1Style,
         color = if (granted) onboardingSuccess else onboardingTextSecondary,
       )
@@ -1118,29 +1118,29 @@ private fun PermissionToggleRow(
 
 @Composable
 private fun FinalStep(
-  parsedGateway: GatewayEndpointConfig?,
+  parsedGuestGateway: GuestGatewayEndpointConfig?,
   statusText: String,
   isConnected: Boolean,
   serverName: String?,
   remoteAddress: String?,
   attemptedConnect: Boolean,
-  enabledPermissions: String,
+  enabledGuestPermissions: String,
   methodLabel: String,
 ) {
   StepShell(title = "Review") {
-    SummaryField(label = "Method", value = methodLabel)
-    SummaryField(label = "Gateway", value = parsedGateway?.displayUrl ?: "Invalid gateway URL")
-    SummaryField(label = "Enabled Permissions", value = enabledPermissions)
+    SummaryField(label = "方式", value = methodLabel)
+    SummaryField(label = "GuestGateway", value = parsedGuestGateway?.displayUrl ?: "无效的网关URL")
+    SummaryField(label = "Enabled GuestPermissions", value = enabledGuestPermissions)
 
     if (!attemptedConnect) {
-      Text("Press Connect to verify gateway reachability and auth.", style = onboardingCalloutStyle, color = onboardingTextSecondary)
+      Text("点击连接以验证网关可达性和认证。", style = onboardingCalloutStyle, color = onboardingTextSecondary)
     } else {
       Text("Status: $statusText", style = onboardingCalloutStyle, color = if (isConnected) onboardingSuccess else onboardingTextSecondary)
       if (isConnected) {
-        Text("Connected to ${serverName ?: remoteAddress ?: "gateway"}", style = onboardingCalloutStyle, color = onboardingSuccess)
+        Text("Connected to ${serverName ?: remoteAddress ?: "网关"}", style = onboardingCalloutStyle, color = onboardingSuccess)
       } else {
-        GuideBlock(title = "Pairing Required") {
-          Text("Run these on the gateway host:", style = onboardingCalloutStyle, color = onboardingTextSecondary)
+        GuideBlock(title = "需要配对") {
+          Text("在网关主机上运行：", style = onboardingCalloutStyle, color = onboardingTextSecondary)
           CommandBlock("openclaw nodes pending")
           CommandBlock("openclaw nodes approve <requestId>")
           Text("Then tap Connect again.", style = onboardingCalloutStyle, color = onboardingTextSecondary)
