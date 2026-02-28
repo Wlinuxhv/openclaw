@@ -1,0 +1,157 @@
+<resources>
+    <string name="app_name">OpenClaw 节点</string>
+    
+    <!-- Onboarding - Step titles -->
+    <string name="step_welcome">欢迎</string>
+    <string name="step_gateway">网关</string>
+    <string name="step_permissions">权限</string>
+    <string name="step_final">连接</string>
+    
+    <!-- Onboarding - Step 1 (Welcome) -->
+    <string name="onboarding_what_you_get">您将获得</string>
+    <string name="onboarding_bullet_1">从一个移动界面控制网关和操作员聊天</string>
+    <string name="onboarding_bullet_2">使用设置码连接，并可通过CLI命令恢复配对</string>
+    <string name="onboarding_bullet_3">仅启用您需要的权限和功能</string>
+    <string name="onboarding_bullet_4">在进入应用前进行真实的连接检查</string>
+    
+    <!-- Onboarding - Step 2 (Gateway) -->
+    <string name="onboarding_gateway_connection">网关连接</string>
+    <string name="onboarding_scan_qr">扫描 onboarding QR 码</string>
+    <string name="onboarding_run_on_gateway">在网关主机上运行：</string>
+    <string name="onboarding_scan_qr_cmd">openclaw qr</string>
+    <string name="onboarding_then_scan">然后用此设备扫描。</string>
+    <string name="onboarding_scan_qr_button">扫描 QR 码</string>
+    <string name="onboarding_qr_captured">QR码已捕获。请查看下方端点。</string>
+    <string name="onboarding_advanced_setup">高级设置</string>
+    <string name="onboarding_paste_setup_code">粘贴设置码或手动输入主机/端口。</string>
+    <string name="onboarding_collapse_advanced">收起高级设置</string>
+    <string name="onboarding_expand_advanced">展开高级设置</string>
+    <string name="onboarding_manual_setup">手动设置命令</string>
+    <string name="onboarding_setup_code_only_cmd">openclaw qr --setup-code-only</string>
+    <string name="onboarding_json_cmd">openclaw qr --json</string>
+    <string name="onboarding_json_note">--json 会输出 setupCode 和 gatewayUrl。</string>
+    <string name="onboarding_auto_url_note">自动URL发现尚未连接。Android模拟器使用 10.0.2.2；真机需要局域网/Tailscale主机。</string>
+    <string name="onboarding_setup_code_label">设置码</string>
+    <string name="onboarding_paste_code_hint">从 openclaw qr --setup-code-only 粘贴代码</string>
+    <string name="onboarding_android_emulator">Android 模拟器</string>
+    <string name="onboarding_localhost">本地主机</string>
+    <string name="onboarding_host_label">主机</string>
+    <string name="onboarding_host_hint">10.0.2.2</string>
+    <string name="onboarding_port_label">端口</string>
+    <string name="onboarding_port_hint">18789</string>
+    <string name="onboarding_use_tls">使用 TLS</string>
+    <string name="onboarding_switch_to_wss">切换到安全websocket (wss)。</string>
+    <string name="onboarding_token_optional">令牌 (可选)</string>
+    <string name="onboarding_token_hint">token</string>
+    <string name="onboarding_password_optional">密码 (可选)</string>
+    <string name="onboarding_password_hint">password</string>
+    <string name="onboarding_qr_mode">QR 码 / 设置码</string>
+    <string name="onboarding_manual_mode">手动</string>
+    <string name="onboarding_resolved_endpoint">解析后的端点</string>
+    
+    <!-- Onboarding - Step 3 (Permissions) -->
+    <string name="onboarding_permissions">权限</string>
+    <string name="onboarding_permissions_desc">仅启用您现在需要的权限。您可以在设置中稍后更改所有内容。</string>
+    <string name="onboarding_gateway_discovery">网关发现</string>
+    <string name="onboarding_gateway_discovery_subtitle">附近设备</string>
+    <string name="onboarding_location_old">位置 (用于NSD)</string>
+    <string name="onboarding_notifications">通知</string>
+    <string name="onboarding_notifications_subtitle">前台服务 + 提醒</string>
+    <string name="onboarding_microphone">麦克风</string>
+    <string name="onboarding_microphone_subtitle">语音标签转录</string>
+    <string name="onboarding_camera">摄像头</string>
+    <string name="onboarding_camera_subtitle">camera.snap 和 camera.clip</string>
+    <string name="onboarding_sms">短信</string>
+    <string name="onboarding_sms_subtitle">允许网关触发的短信发送</string>
+    <string name="onboarding_all_settings_changeable">所有设置都可以在设置中稍后更改。</string>
+    <string name="onboarding_granted">已授权</string>
+    <string name="onboarding_not_granted">未授权</string>
+    
+    <!-- Onboarding - Step 4 (Review/Connect) -->
+    <string name="onboarding_review">确认</string>
+    <string name="onboarding_method">方式</string>
+    <string name="onboarding_gateway_label">网关</string>
+    <string name="onboarding_enabled_permissions">已启用权限</string>
+    <string name="onboarding_press_connect">点击连接以验证网关可达性和认证。</string>
+    <string name="onboarding_status">状态: %s</string>
+    <string name="onboarding_connected_to">已连接到 %s</string>
+    <string name="onboarding_pairing_required">需要配对</string>
+    
+    <!-- Navigation tabs -->
+    <string name="tab_connect">连接</string>
+    <string name="tab_chat">聊天</string>
+    <string name="tab_voice">语音</string>
+    <string name="tab_screen">屏幕</string>
+    <string name="tab_settings">设置</string>
+    
+    <!-- Status -->
+    <string name="status_connecting">连接中</string>
+    <string name="status_reconnecting">重新连接中</string>
+    <string name="status_pairing">配对中</string>
+    <string name="status_approval">审批中</string>
+    <string name="status_auth">认证中</string>
+    <string name="status_error">错误</string>
+    <string name="status_failed">失败</string>
+    <string name="status_offline">离线</string>
+    <string name="status_online">在线</string>
+    
+    <!-- Connect screen -->
+    <string name="canvas_restore_requested">恢复请求已发出。等待代理…</string>
+    <string name="canvas_reset">画布已重置。点击恢复仪表板。</string>
+    <string name="tap_to_restore">点击恢复</string>
+    
+    <!-- Voice tab -->
+    <string name="voice_mode">语音模式</string>
+    <string name="voice_connected">已连接</string>
+    <string name="voice_offline">离线</string>
+    <string name="voice_tap_mic_speak">点击麦克风并说话。每次停顿会自动发送一轮。</string>
+    <string name="voice_queued">排队中: %d</string>
+    <string name="voice_sending">发送中</string>
+    <string name="voice_listening">正在监听</string>
+    <string name="voice_mic_off">麦克风关闭</string>
+    <string name="voice_tap_to_stop">点击停止</string>
+    <string name="voice_tap_to_speak">点击说话</string>
+    <string name="voice_mic_permission_required">语音模式需要麦克风权限。</string>
+    <string name="voice_mic_blocked">麦克风被阻止。打开应用设置以启用。</string>
+    <string name="voice_open_settings">打开设置</string>
+    <string name="voice_you">您</string>
+    <string name="voice_listening_response">正在听取回复…</string>
+    <string name="voice_thinking">OpenClaw 正在思考…</string>
+    
+    <!-- Settings -->
+    <string name="settings">设置</string>
+    <string name="device_configuration">设备配置</string>
+    <string name="manage_capabilities">管理功能、权限和诊断。</string>
+    <string name="node">节点</string>
+    <string name="device_name">名称</string>
+    <string name="instance_id">实例ID: %s</string>
+    <string name="device_model">设备: %s</string>
+    <string name="app_version">版本: %s</string>
+    <string name="voice_settings">语音</string>
+    <string name="mic_permission">麦克风权限</string>
+    <string name="mic_granted">已授权。使用语音标签上的麦克风按钮捕获转录。</string>
+    <string name="mic_required">语音标签转录需要此权限。</string>
+    <string name="manage">管理</string>
+    <string name="grant">授权</string>
+    <string name="voice_modes_removed">语音唤醒和对话模式已移除。语音现在在语音标签中使用一个麦克风开关流程。</string>
+    <string name="camera_settings">摄像头</string>
+    <string name="allow_camera">允许摄像头</string>
+    <string name="camera_description照片或短视频片段">允许网关请求（仅前台）。</string>
+    <string name="camera_tip">提示：视频片段需要授予麦克风权限。</string>
+    <string name="messaging">消息</string>
+    <string name="sms_unavailable">不可用</string>
+    <string name="sms_permission">短信权限</string>
+    <string name="sms_granted">允许网关从此设备发送短信。</string>
+    <string name="sms_requires_hardware">短信需要具有电话硬件的设备。</string>
+    <string name="location">位置</string>
+    <string name="location_off">关闭</string>
+    <string name="location_off_desc">禁用位置共享。</string>
+    <string name="location_while_using">使用时</string>
+    <string name="location_while_using_desc">仅在OpenClaw打开时。</string>
+    <string name="location_always">始终</string>
+    <string name="location_always_desc">允许后台位置（需要系统权限）。</string>
+    <string name="precise_location">精确位置</string>
+    <string name="precise_location_desc">在可用时使用精确GPS。</string>
+    <string name="location_always_note">始终可能需要Android设置允许后台位置。</string>
+    <string name="screen_settings">屏幕</string>
+    <string name="prevent_sleep">防
